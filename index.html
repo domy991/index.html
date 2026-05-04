@@ -1,3 +1,9 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>UniSmart AI</title>
+
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -17,10 +23,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 </script>
-<!DOCTYPE html>
-<html>
-<head>
-<title>UniSmart AI</title>
 
 <style>
 body {
@@ -90,9 +92,13 @@ button:hover {
 
 <!-- LOGIN -->
 <div id="loginBox" class="card">
-  <h3>Login</h3>
-  <input id="username" placeholder="Inserisci nome" style="width:100%;padding:10px;">
-  <button onclick="login()">Entra</button>
+  <h3>Login / Registrazione</h3>
+
+  <input id="email" placeholder="Email" style="width:100%;padding:10px;margin-bottom:10px;">
+  <input id="password" type="password" placeholder="Password" style="width:100%;padding:10px;margin-bottom:10px;">
+
+  <button onclick="register()">Registrati</button>
+  <button onclick="login()">Accedi</button>
 </div>
 
 <!-- HOME -->
@@ -122,26 +128,37 @@ button:hover {
 <script>
 
 // ===== LOGIN =====
+function register(){
+  let email = document.getElementById("email").value;
+  let password = document.getElementById("password").value;
+
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(() => alert("Registrato"))
+    .catch(err => alert(err.message));
+}
+
 function login(){
-  let user = document.getElementById("username").value;
-  localStorage.setItem("user", user);
+  let email = document.getElementById("email").value;
+  let password = document.getElementById("password").value;
 
-  document.getElementById("loginBox").classList.add("hidden");
-  document.getElementById("home").classList.remove("hidden");
-
-  document.getElementById("user").innerText = user;
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => alert("Login ok"))
+    .catch(err => alert(err.message));
 }
 
-if(localStorage.getItem("user")){
-  document.getElementById("loginBox").classList.add("hidden");
-  document.getElementById("home").classList.remove("hidden");
-  document.getElementById("user").innerText = localStorage.getItem("user");
-}
+// auto login
+auth.onAuthStateChanged(user => {
+  if(user){
+    document.getElementById("loginBox").classList.add("hidden");
+    document.getElementById("home").classList.remove("hidden");
+    document.getElementById("user").innerText = user.email;
+  }
+});
 
 // ===== DATI =====
 let quizData = [];
 let quizFiltrati = [];
-let errori = JSON.parse(localStorage.getItem("errori") || "[]");
+let errori = [];
 
 let index = 0;
 let punteggio = 0;
@@ -195,11 +212,11 @@ function aggiornaTimer(){
 // ===== DOMANDA =====
 function mostra(){
 
-  if(index >= limiteFree && !localStorage.getItem("premium")){
+  if(index >= limiteFree){
     document.getElementById("quizBox").innerHTML = `
       <h2>🔒 Premium</h2>
       <p>Hai raggiunto il limite gratuito</p>
-      <button onclick="vaiPagamento()">Sblocca a 7€/mese</button>
+      <button onclick="vaiPagamento()">Sblocca</button>
     `;
     return;
   }
@@ -228,7 +245,15 @@ function rispondi(i){
     punteggio++;
   } else {
     errori.push(q);
-    localStorage.setItem("errori", JSON.stringify(errori));
+
+    let user = auth.currentUser;
+    if(user){
+      db.collection("errori").add({
+        user: user.uid,
+        domanda: q.domanda,
+        data: new Date()
+      });
+    }
   }
 
   index++;
@@ -251,22 +276,45 @@ function fine(){
   `;
 }
 
-// ===== ERRORI =====
+// ===== ERRORI CLOUD =====
 function mostraErrori(){
 
-  if(errori.length === 0){
-    alert("Nessun errore salvato");
+  let user = auth.currentUser;
+
+  if(!user){
+    alert("Devi essere loggato");
     return;
   }
 
-  quizFiltrati = errori;
-  index = 0;
-  punteggio = 0;
+  db.collection("errori")
+    .where("user", "==", user.uid)
+    .get()
+    .then(snapshot => {
 
-  document.getElementById("home").classList.add("hidden");
-  document.getElementById("quizBox").classList.remove("hidden");
+      let lista = [];
 
-  mostra();
+      snapshot.forEach(doc=>{
+        lista.push({
+          domanda: doc.data().domanda,
+          opzioni: ["-", "-", "-", "-"],
+          corretta: 0
+        });
+      });
+
+      if(lista.length === 0){
+        alert("Nessun errore");
+        return;
+      }
+
+      quizFiltrati = lista;
+      index = 0;
+      punteggio = 0;
+
+      document.getElementById("home").classList.add("hidden");
+      document.getElementById("quizBox").classList.remove("hidden");
+
+      mostra();
+    });
 }
 
 // ===== RIPASSO =====
@@ -292,9 +340,6 @@ function ripasso(){
 function vaiPagamento(){
   window.location.href = "https://buy.stripe.com/XXXXX";
 }
-
-// TEST SBLOCCO
-// localStorage.setItem("premium","true");
 
 </script>
 
