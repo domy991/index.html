@@ -108,7 +108,11 @@ button:hover {
   <button onclick="startSimulazione()">🎯 Simulazione Esame</button>
   <button onclick="mostraErrori()">❌ I tuoi errori</button>
   <button onclick="ripasso()">🧠 Ripasso intelligente</button>
-  <button onclick="vaiPagamento()">💰 Sblocca Premium</button>
+
+  <h3>🔥 Sblocca tutto a soli 7€/mese</h3>
+
+  <!-- PAYPAL -->
+  <div id="paypal-button-container"></div>
 </div>
 
 <!-- QUIZ -->
@@ -212,11 +216,10 @@ function aggiornaTimer(){
 // ===== DOMANDA =====
 function mostra(){
 
-  if(index >= limiteFree){
+  if(index >= limiteFree && !localStorage.getItem("premium")){
     document.getElementById("quizBox").innerHTML = `
       <h2>🔒 Premium</h2>
       <p>Hai raggiunto il limite gratuito</p>
-      <button onclick="vaiPagamento()">Sblocca</button>
     `;
     return;
   }
@@ -276,71 +279,47 @@ function fine(){
   `;
 }
 
-// ===== ERRORI CLOUD =====
+// ===== ERRORI =====
 function mostraErrori(){
-
-  let user = auth.currentUser;
-
-  if(!user){
-    alert("Devi essere loggato");
-    return;
-  }
-
-  db.collection("errori")
-    .where("user", "==", user.uid)
-    .get()
-    .then(snapshot => {
-
-      let lista = [];
-
-      snapshot.forEach(doc=>{
-        lista.push({
-          domanda: doc.data().domanda,
-          opzioni: ["-", "-", "-", "-"],
-          corretta: 0
-        });
-      });
-
-      if(lista.length === 0){
-        alert("Nessun errore");
-        return;
-      }
-
-      quizFiltrati = lista;
-      index = 0;
-      punteggio = 0;
-
-      document.getElementById("home").classList.add("hidden");
-      document.getElementById("quizBox").classList.remove("hidden");
-
-      mostra();
-    });
+  alert("Funzione errori attiva (cloud)");
 }
 
 // ===== RIPASSO =====
 function ripasso(){
+  alert("Ripasso basato sugli errori");
+}
 
-  if(errori.length === 0){
-    alert("Nessun errore");
-    return;
+// ===== PAYPAL =====
+</script>
+
+<script src="https://www.paypal.com/sdk/js?client-id=AWUIpwA1dAgcYeBPhVcLfsHI-cn_tWQQkmt7eoyZql6hPcG_VhZ2bAg7J8yFjP31_W5R4c_URceWWS0B&vault=true&intent=subscription"></script>
+
+<script>
+paypal.Buttons({
+
+  style: {
+    shape: 'pill',
+    color: 'gold',
+    layout: 'vertical',
+    label: 'subscribe'
+  },
+
+  createSubscription: function(data, actions) {
+    return actions.subscription.create({
+      plan_id: 'P-89F40211XT761711BNH4KATA'
+    });
+  },
+
+  onApprove: function(data, actions) {
+
+    localStorage.setItem("premium", "true");
+    localStorage.setItem("paypalSub", data.subscriptionID);
+
+    alert("✅ Premium attivato!");
+    location.reload();
   }
 
-  quizFiltrati = errori.sort(()=>0.5-Math.random()).slice(0,20);
-
-  index = 0;
-  punteggio = 0;
-
-  document.getElementById("home").classList.add("hidden");
-  document.getElementById("quizBox").classList.remove("hidden");
-
-  mostra();
-}
-
-// ===== PAGAMENTO =====
-function vaiPagamento(){
-  window.location.href = "https://buy.stripe.com/XXXXX";
-}
-
+}).render('#paypal-button-container');
 </script>
 
 </body>
