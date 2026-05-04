@@ -8,105 +8,46 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
 
 <style>
 body{
   margin:0;
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg,#4f46e5,#9333ea);
+  font-family:Segoe UI;
+  background:linear-gradient(135deg,#4f46e5,#9333ea);
   color:white;
 }
-
-/* HEADER */
 .header{
-  padding:20px;
-  font-size:22px;
-  font-weight:bold;
+  padding:15px;
   display:flex;
   justify-content:space-between;
 }
-
-/* CONTAINER */
-.container{
-  padding:20px;
-}
-
-/* CARD */
+.container{padding:15px;}
 .card{
   background:white;
   color:black;
-  border-radius:20px;
-  padding:20px;
-  margin-bottom:15px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+  border-radius:15px;
+  padding:15px;
+  margin-bottom:10px;
 }
-
-/* BUTTON */
 button{
   width:100%;
-  padding:14px;
-  border:none;
-  border-radius:12px;
+  padding:12px;
   margin-top:10px;
-  font-size:16px;
-  cursor:pointer;
+  border:none;
+  border-radius:10px;
   background:#4f46e5;
   color:white;
 }
-
-button:hover{
-  background:#3730a3;
-}
-
-/* QUIZ */
-.quiz{
-  font-size:18px;
-  margin-bottom:10px;
-}
-
-/* PROGRESS */
-.progress{
-  height:8px;
-  background:#ddd;
-  border-radius:10px;
-  margin-bottom:15px;
-}
-
-.bar{
-  height:8px;
-  background:#10b981;
-  border-radius:10px;
-}
-
-/* TIMER */
-.timer{
-  font-weight:bold;
-  margin-bottom:10px;
-}
-
-/* NAV BAR */
-.nav{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:white;
-  display:flex;
-  justify-content:space-around;
-  padding:10px;
-  border-top-left-radius:20px;
-  border-top-right-radius:20px;
-}
-
-.nav button{
-  background:none;
-  color:#4f46e5;
-  font-size:14px;
-}
-
-/* HIDDEN */
 .hidden{display:none}
+.progress{height:6px;background:#ddd;border-radius:10px}
+.bar{height:6px;background:#10b981;border-radius:10px}
+.nav{
+ position:fixed;bottom:0;width:100%;
+ display:flex;justify-content:space-around;
+ background:white;color:#4f46e5;
+}
 </style>
-
 </head>
 
 <body>
@@ -118,149 +59,189 @@ button:hover{
 
 <div class="container">
 
-<!-- LOGIN -->
 <div id="loginBox" class="card">
-  <h3>Accedi</h3>
-  <input id="email" placeholder="Email" style="width:100%;padding:10px;margin-top:10px">
-  <input id="password" type="password" placeholder="Password" style="width:100%;padding:10px;margin-top:10px">
-  <button onclick="login()">Login</button>
-  <button onclick="register()">Registrati</button>
+<input id="email" placeholder="Email"><br>
+<input id="password" type="password" placeholder="Password"><br>
+<button onclick="login()">Login</button>
+<button onclick="register()">Registrati</button>
 </div>
 
-<!-- HOME -->
 <div id="home" class="hidden">
 
-  <div class="card">
-    <h3>🚀 Inizia</h3>
-    <button onclick="start()">Simulazione Esame</button>
-  </div>
+<div class="card">
+<h3>🚀 Avvia</h3>
+<button onclick="start()">Simulazione</button>
+<button onclick="generaAI()">🤖 Quiz AI</button>
+</div>
 
-  <div class="card">
-    <h3>📊 Progressi</h3>
-    <p id="stats">0 quiz completati</p>
-  </div>
+<div class="card">
+<h3>🏆 Classifica</h3>
+<div id="rank"></div>
+</div>
 
-  <div class="card">
-    <h3>💎 Premium</h3>
-    <p>Sblocca tutti i quiz</p>
-    <div id="paypal-button-container"></div>
-  </div>
+<div class="card">
+<h3>💎 Premium</h3>
+<div id="paypal-button-container"></div>
+</div>
 
 </div>
 
-<!-- QUIZ -->
 <div id="quizBox" class="card hidden">
-  <div class="timer" id="timer"></div>
-
-  <div class="progress">
-    <div id="bar" class="bar"></div>
-  </div>
-
-  <div id="domanda" class="quiz"></div>
-  <div id="opzioni"></div>
+<div id="timer"></div>
+<div class="progress"><div id="bar" class="bar"></div></div>
+<h3 id="domanda"></h3>
+<div id="opzioni"></div>
 </div>
 
 </div>
 
-<!-- NAV -->
 <div class="nav">
-  <button onclick="showHome()">Home</button>
-  <button onclick="start()">Quiz</button>
-  <button onclick="logout()">Logout</button>
+<button onclick="homeView()">Home</button>
+<button onclick="start()">Quiz</button>
+<button onclick="logout()">Logout</button>
 </div>
 
 <script>
 
-// FIREBASE CONFIG
-const firebaseConfig = {
- apiKey: "AIzaSyCx-0jUXU98TyetAvNE6SP2E55YwsaLJ9o",
- authDomain: "uniai-4726b.firebaseapp.com",
- projectId: "uniai-4726b"
-};
+// FIREBASE
+firebase.initializeApp({
+ apiKey:"AIzaSyCx-0jUXU98TyetAvNE6SP2E55YwsaLJ9o",
+ authDomain:"uniai-4726b.firebaseapp.com",
+ projectId:"uniai-4726b"
+});
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+const auth=firebase.auth();
+const db=firebase.firestore();
+const analytics=firebase.analytics();
 
 // LOGIN
 function login(){
  auth.signInWithEmailAndPassword(email.value,password.value)
- .catch(e=>alert(e.message))
 }
-
 function register(){
  auth.createUserWithEmailAndPassword(email.value,password.value)
- .catch(e=>alert(e.message))
 }
-
-function logout(){
- auth.signOut()
-}
+function logout(){auth.signOut()}
 
 // SESSIONE
+let premium=false;
+
 auth.onAuthStateChanged(u=>{
  if(u){
-  loginBox.classList.add("hidden")
-  home.classList.remove("hidden")
-  user.innerText=u.email
+  loginBox.classList.add("hidden");
+  home.classList.remove("hidden");
+  user.innerText=u.email;
+
+  db.collection("users").doc(u.uid).get().then(d=>{
+    if(d.exists && d.data().premium) premium=true;
+  });
+
+  loadRank();
  }else{
-  loginBox.classList.remove("hidden")
+  loginBox.classList.remove("hidden");
  }
-})
+});
 
 // QUIZ
-let quiz=[]
-let i=0
-let tempo=2700
+let quiz=[{
+ domanda:"Il PIL misura?",
+ opzioni:["Produzione","Costo","Prezzo","Debito"],
+ corretta:0
+}];
 
-fetch("quiz.json").then(r=>r.json()).then(d=>quiz=d)
+let i=0;
+let punteggio=0;
 
 function start(){
- quizBox.classList.remove("hidden")
- home.classList.add("hidden")
- i=0
- tempo=2700
- timer()
- next()
-}
-
-function timer(){
- setInterval(()=>{
-  tempo--
-  let m=Math.floor(tempo/60)
-  let s=tempo%60
-  timer.innerText="⏱ "+m+":"+(s<10?"0":"")+s
- },1000)
+ quizBox.classList.remove("hidden");
+ home.classList.add("hidden");
+ i=0; punteggio=0;
+ next();
+ analytics.logEvent("quiz_start");
 }
 
 function next(){
- let q=quiz[i]
- if(!q){quizBox.innerHTML="<h3>Fine</h3>";return}
+ if(i>=10 && !premium){
+  quizBox.innerHTML="<h3>Premium richiesto</h3>";
+  return;
+ }
+ if(i>=quiz.length){
+  salvaScore();
+  quizBox.innerHTML="<h3>Fine "+punteggio+"</h3>";
+  analytics.logEvent("quiz_complete",{score:punteggio});
+  return;
+ }
 
- domanda.innerText=q.domanda
+ let q=quiz[i];
+ domanda.innerText=q.domanda;
 
- let html=""
+ let html="";
  q.opzioni.forEach((o,idx)=>{
-  html+=`<button onclick="ans(${idx})">${o}</button>`
- })
- opzioni.innerHTML=html
+  html+=`<button onclick="ans(${idx})">${o}</button>`;
+ });
+ opzioni.innerHTML=html;
 
- bar.style.width=((i+1)/quiz.length*100)+"%"
+ bar.style.width=((i+1)/quiz.length*100)+"%";
 }
 
 function ans(x){
- i++
- next()
+ if(x===quiz[i].corretta) punteggio++;
+ i++; next();
 }
 
-function showHome(){
- quizBox.classList.add("hidden")
- home.classList.remove("hidden")
+// SALVA CLASSIFICA
+function salvaScore(){
+ let u=auth.currentUser;
+ if(!u) return;
+
+ db.collection("leaderboard").doc(u.uid).set({
+  email:u.email,
+  punti:firebase.firestore.FieldValue.increment(punteggio)
+ },{merge:true});
 }
 
-// PAYPAL
+// LOAD CLASSIFICA
+function loadRank(){
+ db.collection("leaderboard")
+ .orderBy("punti","desc")
+ .limit(10)
+ .get()
+ .then(s=>{
+  let h="";
+  let p=1;
+  s.forEach(d=>{
+    let u=d.data();
+    h+=`<p>${p}. ${u.email} - ${u.punti}</p>`;
+    p++;
+  });
+  rank.innerHTML=h;
+ });
+}
+
+// AI (semplice demo)
+function generaAI(){
+ quiz.push({
+  domanda:"Domanda generata AI",
+  opzioni:["A","B","C","D"],
+  corretta:0
+ });
+ alert("Quiz AI aggiunto");
+}
+
+// VIEW
+function homeView(){
+ quizBox.classList.add("hidden");
+ home.classList.remove("hidden");
+}
+
+// PWA
+if("serviceWorker" in navigator){
+ navigator.serviceWorker.register("sw.js");
+}
+
 </script>
 
+<!-- PAYPAL -->
 <script src="https://www.paypal.com/sdk/js?client-id=AWUIpwA1dAgcYeBPhVcLfsHI-cn_tWQQkmt7eoyZql6hPcG_VhZ2bAg7J8yFjP31_W5R4c_URceWWS0B&vault=true&intent=subscription"></script>
 
 <script>
@@ -268,11 +249,11 @@ paypal.Buttons({
  createSubscription:(d,a)=>a.subscription.create({
   plan_id:'P-89F40211XT761711BNH4KATA'
  }),
- onApprove:()=>{
-  localStorage.setItem("premium","true")
-  alert("Premium attivo!")
+ onApprove:(d,a)=>{
+  localStorage.setItem("premium","true");
+  alert("Premium attivo");
  }
-}).render('#paypal-button-container')
+}).render('#paypal-button-container');
 </script>
 
 </body>
