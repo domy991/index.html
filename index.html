@@ -44,9 +44,6 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;ba
 <button onclick="mostraErrori()">❌ Errori</button>
 <button onclick="ripasso()">🧠 Ripasso</button>
 
-<h4>💎 Premium</h4>
-<div id="paypal-button-container"></div>
-
 <button onclick="logout()">Logout</button>
 </div>
 
@@ -55,7 +52,6 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;ba
 <h3>⚙️ Admin Panel</h3>
 <button onclick="resetClassifica()">Reset classifica</button>
 <button onclick="contaUtenti()">👥 Utenti</button>
-<button onclick="contaPremium()">💎 Premium</button>
 <div id="adminStats"></div>
 </div>
 
@@ -79,13 +75,13 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;ba
 // ===== CONFIG =====
 const ADMIN_EMAIL = "domenicosenza@gmail.com";
 
+// ===== NOMI MATERIE =====
 const nomiMaterie = {
-  amm: "⚖️ Diritto Amministrativo",
-  cost: "📜 Costituzionale",
-  eco: "📊 Economia",
-  trib: "💰 Tributario",
-  civile: "📚 Civile",
-  penale: "🏛️ Penale"
+  amministrativo: "⚖️ Amm.",
+  diritto: "📜 Diritto",
+  economia: "📊 Economia",
+  tributario: "💰 Tributario",
+  lavoro: "👷 Lavoro"
 };
 
 // ===== FIREBASE =====
@@ -127,24 +123,46 @@ auth.onAuthStateChanged(u=>{
  }
 });
 
-// ===== CARICA QUIZ =====
+// ===== DATABASE QUIZ =====
 let DB = {};
 let quizCaricati = false;
 
+// 🔥 FIX AUTOMATICO ARRAY → MATERIE
 fetch("quiz.json")
 .then(res => res.json())
 .then(data => {
- DB = data;
- quizCaricati = true;
- generaMaterie();
+
+  let grouped = {};
+
+  data.forEach(q => {
+
+    let m = q.materia || "altro";
+
+    if(!grouped[m]) grouped[m] = [];
+
+    grouped[m].push({
+      domanda: q.domanda,
+      opzioni: q.opzioni,
+      corretta: q.corretta
+    });
+
+  });
+
+  DB = grouped;
+
+  quizCaricati = true;
+  generaMaterie();
+
 });
 
 // ===== GENERA MATERIE =====
 function generaMaterie(){
+
  let html = "";
 
  Object.keys(DB).forEach(m => {
-  let nome = nomiMaterie[m] || m.toUpperCase();
+
+  let nome = nomiMaterie[m] || m;
 
   html += `
     <button onclick="startMateria('${m}')">
@@ -185,12 +203,14 @@ function avvia(){
 
 // ===== QUIZ =====
 function mostra(){
+
  if(index>=quiz.length) return fine();
 
  let q = quiz[index];
  domanda.innerText = q.domanda;
 
  let html = "";
+
  q.opzioni.forEach((o,i)=>{
   html += `<button onclick="rispondi(${i})">${o}</button>`;
  });
@@ -199,7 +219,9 @@ function mostra(){
  bar.style.width = ((index+1)/quiz.length*100)+"%";
 }
 
+// ===== RISPOSTA =====
 function rispondi(i){
+
  let q = quiz[index];
 
  if(i===q.corretta) punti++;
@@ -212,7 +234,9 @@ function rispondi(i){
  mostra();
 }
 
+// ===== FINE =====
 function fine(){
+
  salvaScore();
 
  quizBox.innerHTML = `
@@ -237,6 +261,7 @@ function ripasso(){
 
 // ===== CLASSIFICA =====
 function salvaScore(){
+
  let u = auth.currentUser;
  if(!u) return;
 
@@ -247,11 +272,13 @@ function salvaScore(){
 }
 
 function caricaClassifica(){
+
  db.collection("leaderboard")
  .orderBy("punti","desc")
  .limit(10)
  .get()
  .then(s=>{
+
   let html="",pos=1;
 
   s.forEach(d=>{
@@ -278,31 +305,6 @@ function contaUtenti(){
  });
 }
 
-function contaPremium(){
- let c=0;
- db.collection("leaderboard").get().then(s=>{
-  s.forEach(d=>{
-   if(d.data().premium) c++;
-  });
-  adminStats.innerHTML = "Premium: "+c;
- });
-}
-
-</script>
-
-<!-- PAYPAL -->
-<script src="https://www.paypal.com/sdk/js?client-id=AWUIpwA1dAgcYeBPhVcLfsHI-cn_tWQQkmt7eoyZql6hPcG_VhZ2bAg7J8yFjP31_W5R4c_URceWWS0B&vault=true&intent=subscription"></script>
-
-<script>
-paypal.Buttons({
- createSubscription:(d,a)=>a.subscription.create({
-  plan_id:'P-89F40211XT761711BNH4KATA'
- }),
- onApprove:()=>{
-  localStorage.setItem("premium","true");
-  alert("Premium attivo!");
- }
-}).render('#paypal-button-container');
 </script>
 
 </body>
