@@ -1,0 +1,7 @@
+[
+  {"domanda":"Chi avvia il processo civile?","opzioni":["Giudice","Convenuto","Attore","PM"],"corretta":2,"spiegazione":"L’attore introduce il giudizio"},
+  {"domanda":"La capacità giuridica si acquista?","opzioni":["A 18 anni","Alla nascita","Con matrimonio","Con lavoro"],"corretta":1,"spiegazione":"Alla nascita"},
+  {"domanda":"Il contratto è?","opzioni":["Accordo","Legge","Sentenza","Atto pubblico"],"corretta":0,"spiegazione":"Accordo tra parti"},
+  {"domanda":"La responsabilità civile è?","opzioni":["Penale","Amministrativa","Risarcitoria","Politica"],"corretta":2,"spiegazione":"Obbligo di risarcire"},
+  {"domanda":"La proprietà è?","opzioni":["Possesso","Diritto reale","Contratto","Obbligo"],"corretta":1,"spiegazione":"Diritto reale pieno"}
+]
