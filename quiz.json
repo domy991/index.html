@@ -1,0 +1,37 @@
+[
+  {
+    "materia": "diritto",
+    "domanda": "Chi avvia il processo civile?",
+    "opzioni": ["Giudice","Convenuto","Attore","PM"],
+    "corretta": 2,
+    "spiegazione": "L’attore introduce il giudizio"
+  },
+  {
+    "materia": "diritto",
+    "domanda": "La capacità giuridica si acquista?",
+    "opzioni": ["A 18 anni","Alla nascita","Con il matrimonio","Con il lavoro"],
+    "corretta": 1,
+    "spiegazione": "Si acquista alla nascita"
+  },
+  {
+    "materia": "tributario",
+    "domanda": "Il tributo è?",
+    "opzioni": ["Volontario","Obbligatorio","Contrattuale","Facoltativo"],
+    "corretta": 1,
+    "spiegazione": "È obbligatorio per legge"
+  },
+  {
+    "materia": "economia",
+    "domanda": "Il PIL misura?",
+    "opzioni": ["Tasse","Produzione","Salari","Importazioni"],
+    "corretta": 1,
+    "spiegazione": "Misura la produzione totale"
+  },
+  {
+    "materia": "lavoro",
+    "domanda": "NASpI è?",
+    "opzioni": ["Contratto","Sussidio","Licenza","Tributo"],
+    "corretta": 1,
+    "spiegazione": "È un sussidio di disoccupazione"
+  }
+]
