@@ -3,323 +3,276 @@
 <head>
 <title>UniSmart AI</title>
 
-<!-- FIREBASE -->
+<link rel="manifest" href="manifest.json">
+
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCx-0jUXU98TyetAvNE6SP2E55YwsaLJ9o",
-  authDomain: "uniai-4726b.firebaseapp.com",
-  projectId: "uniai-4726b",
-  storageBucket: "uniai-4726b.firebasestorage.app",
-  messagingSenderId: "272196411633",
-  appId: "1:272196411633:web:43095d8b2217a23ad68950"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-</script>
-
 <style>
-body {
-  font-family: Arial;
-  background: linear-gradient(135deg, #4f46e5, #9333ea);
-  margin: 0;
-  color: white;
+body{
+  margin:0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#4f46e5,#9333ea);
+  color:white;
 }
 
-.header {
-  padding: 20px;
-  font-size: 22px;
-  font-weight: bold;
+/* HEADER */
+.header{
+  padding:20px;
+  font-size:22px;
+  font-weight:bold;
+  display:flex;
+  justify-content:space-between;
 }
 
-.container {
-  padding: 20px;
+/* CONTAINER */
+.container{
+  padding:20px;
 }
 
-.card {
-  background: white;
-  color: black;
-  border-radius: 15px;
-  padding: 20px;
-  max-width: 500px;
-  margin: auto;
+/* CARD */
+.card{
+  background:white;
+  color:black;
+  border-radius:20px;
+  padding:20px;
+  margin-bottom:15px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
 }
 
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 10px;
-  border: none;
-  background: #4f46e5;
-  color: white;
-  cursor: pointer;
+/* BUTTON */
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  margin-top:10px;
+  font-size:16px;
+  cursor:pointer;
+  background:#4f46e5;
+  color:white;
 }
 
-button:hover {
-  background: #3730a3;
+button:hover{
+  background:#3730a3;
 }
 
-.hidden { display:none; }
-
-.progress {
-  height: 10px;
-  background: #ddd;
-  border-radius: 10px;
-  margin-bottom: 10px;
+/* QUIZ */
+.quiz{
+  font-size:18px;
+  margin-bottom:10px;
 }
 
-.bar {
-  height: 10px;
-  background: green;
-  border-radius: 10px;
+/* PROGRESS */
+.progress{
+  height:8px;
+  background:#ddd;
+  border-radius:10px;
+  margin-bottom:15px;
 }
+
+.bar{
+  height:8px;
+  background:#10b981;
+  border-radius:10px;
+}
+
+/* TIMER */
+.timer{
+  font-weight:bold;
+  margin-bottom:10px;
+}
+
+/* NAV BAR */
+.nav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:white;
+  display:flex;
+  justify-content:space-around;
+  padding:10px;
+  border-top-left-radius:20px;
+  border-top-right-radius:20px;
+}
+
+.nav button{
+  background:none;
+  color:#4f46e5;
+  font-size:14px;
+}
+
+/* HIDDEN */
+.hidden{display:none}
 </style>
 
 </head>
 
 <body>
 
-<div class="header">🎓 UniSmart AI</div>
+<div class="header">
+  <div>🎓 UniSmart</div>
+  <div id="user"></div>
+</div>
 
 <div class="container">
 
 <!-- LOGIN -->
 <div id="loginBox" class="card">
-  <h3>Login / Registrazione</h3>
-
-  <input id="email" placeholder="Email" style="width:100%;padding:10px;margin-bottom:10px;">
-  <input id="password" type="password" placeholder="Password" style="width:100%;padding:10px;margin-bottom:10px;">
-
+  <h3>Accedi</h3>
+  <input id="email" placeholder="Email" style="width:100%;padding:10px;margin-top:10px">
+  <input id="password" type="password" placeholder="Password" style="width:100%;padding:10px;margin-top:10px">
+  <button onclick="login()">Login</button>
   <button onclick="register()">Registrati</button>
-  <button onclick="login()">Accedi</button>
 </div>
 
 <!-- HOME -->
-<div id="home" class="card hidden">
-  <h2>Benvenuto <span id="user"></span></h2>
+<div id="home" class="hidden">
 
-  <button onclick="startSimulazione()">🎯 Simulazione Esame</button>
-  <button onclick="mostraErrori()">❌ I tuoi errori</button>
-  <button onclick="ripasso()">🧠 Ripasso intelligente</button>
+  <div class="card">
+    <h3>🚀 Inizia</h3>
+    <button onclick="start()">Simulazione Esame</button>
+  </div>
 
-  <h3>🔥 Sblocca tutto a soli 7€/mese</h3>
+  <div class="card">
+    <h3>📊 Progressi</h3>
+    <p id="stats">0 quiz completati</p>
+  </div>
 
-  <!-- PAYPAL -->
-  <div id="paypal-button-container"></div>
+  <div class="card">
+    <h3>💎 Premium</h3>
+    <p>Sblocca tutti i quiz</p>
+    <div id="paypal-button-container"></div>
+  </div>
+
 </div>
 
 <!-- QUIZ -->
 <div id="quizBox" class="card hidden">
-  <div id="timer"></div>
+  <div class="timer" id="timer"></div>
 
   <div class="progress">
     <div id="bar" class="bar"></div>
   </div>
 
-  <h3 id="domanda"></h3>
+  <div id="domanda" class="quiz"></div>
   <div id="opzioni"></div>
 </div>
 
 </div>
 
+<!-- NAV -->
+<div class="nav">
+  <button onclick="showHome()">Home</button>
+  <button onclick="start()">Quiz</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
 <script>
 
-// ===== LOGIN =====
-function register(){
-  let email = document.getElementById("email").value;
-  let password = document.getElementById("password").value;
+// FIREBASE CONFIG
+const firebaseConfig = {
+ apiKey: "AIzaSyCx-0jUXU98TyetAvNE6SP2E55YwsaLJ9o",
+ authDomain: "uniai-4726b.firebaseapp.com",
+ projectId: "uniai-4726b"
+};
 
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(() => alert("Registrato"))
-    .catch(err => alert(err.message));
-}
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
+// LOGIN
 function login(){
-  let email = document.getElementById("email").value;
-  let password = document.getElementById("password").value;
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => alert("Login ok"))
-    .catch(err => alert(err.message));
+ auth.signInWithEmailAndPassword(email.value,password.value)
+ .catch(e=>alert(e.message))
 }
 
-// auto login
-auth.onAuthStateChanged(user => {
-  if(user){
-    document.getElementById("loginBox").classList.add("hidden");
-    document.getElementById("home").classList.remove("hidden");
-    document.getElementById("user").innerText = user.email;
-  }
-});
-
-// ===== DATI =====
-let quizData = [];
-let quizFiltrati = [];
-let errori = [];
-
-let index = 0;
-let punteggio = 0;
-
-let tempo = 2700;
-let timerInterval;
-
-let limiteFree = 10;
-
-// ===== LOAD QUIZ =====
-fetch("quiz.json")
-  .then(res => res.json())
-  .then(data => quizData = data);
-
-// ===== SIMULAZIONE =====
-function startSimulazione(){
-
-  quizFiltrati = quizData.sort(()=>0.5-Math.random()).slice(0,30);
-
-  index = 0;
-  punteggio = 0;
-  tempo = 2700;
-
-  document.getElementById("home").classList.add("hidden");
-  document.getElementById("quizBox").classList.remove("hidden");
-
-  avviaTimer();
-  mostra();
+function register(){
+ auth.createUserWithEmailAndPassword(email.value,password.value)
+ .catch(e=>alert(e.message))
 }
 
-// ===== TIMER =====
-function avviaTimer(){
-  aggiornaTimer();
-
-  timerInterval = setInterval(()=>{
-    tempo--;
-    aggiornaTimer();
-
-    if(tempo <= 0){
-      fine();
-    }
-  },1000);
+function logout(){
+ auth.signOut()
 }
 
-function aggiornaTimer(){
-  let min = Math.floor(tempo/60);
-  let sec = tempo%60;
-  document.getElementById("timer").innerText = "⏱️ "+min+":"+(sec<10?"0":"")+sec;
+// SESSIONE
+auth.onAuthStateChanged(u=>{
+ if(u){
+  loginBox.classList.add("hidden")
+  home.classList.remove("hidden")
+  user.innerText=u.email
+ }else{
+  loginBox.classList.remove("hidden")
+ }
+})
+
+// QUIZ
+let quiz=[]
+let i=0
+let tempo=2700
+
+fetch("quiz.json").then(r=>r.json()).then(d=>quiz=d)
+
+function start(){
+ quizBox.classList.remove("hidden")
+ home.classList.add("hidden")
+ i=0
+ tempo=2700
+ timer()
+ next()
 }
 
-// ===== DOMANDA =====
-function mostra(){
-
-  if(index >= limiteFree && !localStorage.getItem("premium")){
-    document.getElementById("quizBox").innerHTML = `
-      <h2>🔒 Premium</h2>
-      <p>Hai raggiunto il limite gratuito</p>
-    `;
-    return;
-  }
-
-  let q = quizFiltrati[index];
-
-  document.getElementById("domanda").innerText = q.domanda;
-
-  let html = "";
-
-  q.opzioni.forEach((op,i)=>{
-    html += `<button onclick="rispondi(${i})">${op}</button>`;
-  });
-
-  document.getElementById("opzioni").innerHTML = html;
-
-  document.getElementById("bar").style.width =
-    ((index+1)/quizFiltrati.length)*100 + "%";
+function timer(){
+ setInterval(()=>{
+  tempo--
+  let m=Math.floor(tempo/60)
+  let s=tempo%60
+  timer.innerText="⏱ "+m+":"+(s<10?"0":"")+s
+ },1000)
 }
 
-// ===== RISPOSTA =====
-function rispondi(i){
-  let q = quizFiltrati[index];
+function next(){
+ let q=quiz[i]
+ if(!q){quizBox.innerHTML="<h3>Fine</h3>";return}
 
-  if(i === q.corretta){
-    punteggio++;
-  } else {
-    errori.push(q);
+ domanda.innerText=q.domanda
 
-    let user = auth.currentUser;
-    if(user){
-      db.collection("errori").add({
-        user: user.uid,
-        domanda: q.domanda,
-        data: new Date()
-      });
-    }
-  }
+ let html=""
+ q.opzioni.forEach((o,idx)=>{
+  html+=`<button onclick="ans(${idx})">${o}</button>`
+ })
+ opzioni.innerHTML=html
 
-  index++;
-
-  if(index >= quizFiltrati.length){
-    fine();
-  } else {
-    mostra();
-  }
+ bar.style.width=((i+1)/quiz.length*100)+"%"
 }
 
-// ===== FINE =====
-function fine(){
-  clearInterval(timerInterval);
-
-  document.getElementById("quizBox").innerHTML = `
-    <h2>Risultato</h2>
-    <p>${punteggio}/${quizFiltrati.length}</p>
-    <button onclick="location.reload()">Home</button>
-  `;
+function ans(x){
+ i++
+ next()
 }
 
-// ===== ERRORI =====
-function mostraErrori(){
-  alert("Funzione errori attiva (cloud)");
+function showHome(){
+ quizBox.classList.add("hidden")
+ home.classList.remove("hidden")
 }
 
-// ===== RIPASSO =====
-function ripasso(){
-  alert("Ripasso basato sugli errori");
-}
-
-// ===== PAYPAL =====
+// PAYPAL
 </script>
 
 <script src="https://www.paypal.com/sdk/js?client-id=AWUIpwA1dAgcYeBPhVcLfsHI-cn_tWQQkmt7eoyZql6hPcG_VhZ2bAg7J8yFjP31_W5R4c_URceWWS0B&vault=true&intent=subscription"></script>
 
 <script>
 paypal.Buttons({
-
-  style: {
-    shape: 'pill',
-    color: 'gold',
-    layout: 'vertical',
-    label: 'subscribe'
-  },
-
-  createSubscription: function(data, actions) {
-    return actions.subscription.create({
-      plan_id: 'P-89F40211XT761711BNH4KATA'
-    });
-  },
-
-  onApprove: function(data, actions) {
-
-    localStorage.setItem("premium", "true");
-    localStorage.setItem("paypalSub", data.subscriptionID);
-
-    alert("✅ Premium attivato!");
-    location.reload();
-  }
-
-}).render('#paypal-button-container');
+ createSubscription:(d,a)=>a.subscription.create({
+  plan_id:'P-89F40211XT761711BNH4KATA'
+ }),
+ onApprove:()=>{
+  localStorage.setItem("premium","true")
+  alert("Premium attivo!")
+ }
+}).render('#paypal-button-container')
 </script>
 
 </body>
