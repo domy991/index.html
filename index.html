@@ -43,7 +43,7 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;ba
 <button onclick="startMateria('trib')">💰 Trib.</button>
 </div>
 
-<button onclick="simulazione()">🎯 Simulazione</button>
+<button onclick="simulazione()">🎯 Simulazione Esame</button>
 <button onclick="mostraErrori()">❌ Errori</button>
 <button onclick="ripasso()">🧠 Ripasso</button>
 
@@ -57,7 +57,6 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;ba
 <div id="adminBox" class="card hidden">
 <h3>⚙️ Admin Panel</h3>
 <button onclick="resetClassifica()">Reset classifica</button>
-<button onclick="aggiungiQuiz()">Aggiungi quiz rapido</button>
 </div>
 
 <div class="card">
@@ -75,10 +74,10 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;ba
 
 <script>
 
-// 🔐 ADMIN EMAIL
+// ===== ADMIN =====
 const ADMIN_EMAIL = "domenicosenza@gmail.com";
 
-// FIREBASE
+// ===== FIREBASE =====
 firebase.initializeApp({
  apiKey:"AIzaSyCx-0jUXU98TyetAvNE6SP2E55YwsaLJ9o",
  authDomain:"uniai-4726b.firebaseapp.com",
@@ -88,25 +87,28 @@ firebase.initializeApp({
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// LOGIN
+// ===== LOGIN =====
 function login(){
  auth.signInWithEmailAndPassword(email.value.trim(),password.value)
  .catch(e=>alert(e.message));
 }
+
 function register(){
  auth.createUserWithEmailAndPassword(email.value.trim(),password.value)
  .catch(e=>alert(e.message));
 }
-function logout(){auth.signOut();}
 
-// SESSIONE
+function logout(){
+ auth.signOut();
+}
+
+// ===== SESSIONE =====
 auth.onAuthStateChanged(u=>{
  if(u){
   loginBox.classList.add("hidden");
   home.classList.remove("hidden");
   user.innerText=u.email;
 
-  // ADMIN CHECK (ANTI MAIUSCOLE)
   if(u.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()){
     adminBox.classList.remove("hidden");
   }
@@ -119,127 +121,173 @@ auth.onAuthStateChanged(u=>{
  }
 });
 
-// QUIZ DATABASE
-let DB = {
-amm:[
-{domanda:"La legge 241/1990 riguarda:",opzioni:["Procedimento amministrativo","Penale","Civile","Cost."],corretta:0},
-{domanda:"Il silenzio assenso è:",opzioni:["Accoglimento","Rigetto","Sanzione","Nullità"],corretta:0}
-],
-cost:[
-{domanda:"Costituzione entra:",opzioni:["1948","1861","1922","2001"],corretta:0}
-],
-eco:[
-{domanda:"Il PIL misura:",opzioni:["Produzione","Debito","Inflazione","Reddito"],corretta:0}
-],
-trib:[
-{domanda:"IVA è:",opzioni:["Indiretta","Diretta","Locale","Regionale"],corretta:0}
-]
-};
+// ===== CARICA QUIZ DA JSON =====
+let DB = {};
+let quizCaricati = false;
 
-let quiz=[], index=0, punti=0;
-let errori = JSON.parse(localStorage.getItem("errori")||"[]");
+fetch("quiz.json")
+.then(res => res.json())
+.then(data => {
+ DB = data;
+ quizCaricati = true;
+ console.log("Quiz caricati OK");
+});
 
-// AVVIO
+// ===== STATO =====
+let quiz = [];
+let index = 0;
+let punti = 0;
+let errori = JSON.parse(localStorage.getItem("errori") || "[]");
+
+// ===== AVVIO MATERIA =====
 function startMateria(m){
- quiz = DB[m];
- avvia();
-}
-function simulazione(){
- quiz = [].concat(...Object.values(DB)).sort(()=>0.5-Math.random());
- avvia();
-}
-function avvia(){
- index=0; punti=0;
- quizBox.classList.remove("hidden");
- home.classList.add("hidden");
- mostra();
-}
 
-function mostra(){
- if(index>=quiz.length){
-  salvaScore();
-  quizBox.innerHTML=`<h3>Risultato ${punti}/${quiz.length}</h3><button onclick="location.reload()">Home</button>`;
+ if(!quizCaricati){
+  alert("Attendi caricamento quiz...");
   return;
  }
- let q=quiz[index];
- domanda.innerText=q.domanda;
 
- let html="";
- q.opzioni.forEach((o,i)=>{
-  html+=`<button onclick="rispondi(${i})">${o}</button>`;
- });
- opzioni.innerHTML=html;
-
- bar.style.width=((index+1)/quiz.length*100)+"%";
+ quiz = DB[m].sort(()=>0.5-Math.random());
+ avvia();
 }
 
-function rispondi(i){
- if(i===quiz[index].corretta) punti++;
- else{
-  errori.push(quiz[index]);
-  localStorage.setItem("errori",JSON.stringify(errori));
+// ===== SIMULAZIONE =====
+function simulazione(){
+
+ if(!quizCaricati){
+  alert("Attendi caricamento quiz...");
+  return;
  }
- index++;
+
+ quiz = Object.values(DB)
+  .flat()
+  .sort(()=>0.5-Math.random())
+  .slice(0,30);
+
+ avvia();
+}
+
+// ===== AVVIO QUIZ =====
+function avvia(){
+ index = 0;
+ punti = 0;
+
+ quizBox.classList.remove("hidden");
+ home.classList.add("hidden");
+
  mostra();
 }
 
-// ERRORI
+// ===== MOSTRA =====
+function mostra(){
+
+ if(index >= quiz.length){
+  fine();
+  return;
+ }
+
+ let q = quiz[index];
+
+ domanda.innerText = q.domanda;
+
+ let html = "";
+ q.opzioni.forEach((o,i)=>{
+  html += `<button onclick="rispondi(${i})">${o}</button>`;
+ });
+
+ opzioni.innerHTML = html;
+
+ bar.style.width = ((index+1)/quiz.length*100) + "%";
+}
+
+// ===== RISPOSTA =====
+function rispondi(i){
+
+ let q = quiz[index];
+
+ if(i === q.corretta){
+  punti++;
+ } else {
+  errori.push(q);
+  localStorage.setItem("errori", JSON.stringify(errori));
+ }
+
+ index++;
+
+ mostra();
+}
+
+// ===== FINE =====
+function fine(){
+
+ salvaScore();
+
+ quizBox.innerHTML = `
+ <h3>Risultato ${punti}/${quiz.length}</h3>
+ <button onclick="location.reload()">Home</button>
+ `;
+}
+
+// ===== ERRORI =====
 function mostraErrori(){
- if(errori.length===0) return alert("Nessun errore");
- quiz=errori;
+
+ if(errori.length === 0){
+  alert("Nessun errore");
+  return;
+ }
+
+ quiz = errori;
  avvia();
 }
 
-// RIPASSO
+// ===== RIPASSO =====
 function ripasso(){
- if(errori.length===0) return alert("Nessun errore");
- quiz=errori.sort(()=>0.5-Math.random()).slice(0,10);
+
+ if(errori.length === 0){
+  alert("Nessun errore");
+  return;
+ }
+
+ quiz = errori.sort(()=>0.5-Math.random()).slice(0,20);
  avvia();
 }
 
-// CLASSIFICA
+// ===== CLASSIFICA =====
 function salvaScore(){
- let u=auth.currentUser;
+ let u = auth.currentUser;
  if(!u) return;
+
  db.collection("leaderboard").doc(u.uid).set({
-  email:u.email,
-  punti:firebase.firestore.FieldValue.increment(punti)
+  email: u.email,
+  punti: firebase.firestore.FieldValue.increment(punti)
  },{merge:true});
 }
 
 function caricaClassifica(){
- db.collection("leaderboard").orderBy("punti","desc").limit(10).get()
+ db.collection("leaderboard")
+ .orderBy("punti","desc")
+ .limit(10)
+ .get()
  .then(s=>{
-  let html="",pos=1;
+  let html = "";
+  let pos = 1;
+
   s.forEach(d=>{
-    let u=d.data();
-    html+=`<p>${pos}. ${u.email} - ${u.punti}</p>`;
-    pos++;
+   let u = d.data();
+   html += `<p>${pos}. ${u.email} - ${u.punti}</p>`;
+   pos++;
   });
-  rank.innerHTML=html;
+
+  rank.innerHTML = html;
  });
 }
 
-// ADMIN
+// ===== ADMIN =====
 function resetClassifica(){
  db.collection("leaderboard").get().then(s=>{
   s.forEach(doc=>doc.ref.delete());
  });
  alert("Classifica resettata");
-}
-
-function aggiungiQuiz(){
- let domanda = prompt("Domanda?");
- let a = prompt("Risposta A");
- let b = prompt("Risposta B");
-
- DB.amm.push({
-  domanda:domanda,
-  opzioni:[a,b,"C","D"],
-  corretta:0
- });
-
- alert("Quiz aggiunto (solo sessione)");
 }
 
 </script>
