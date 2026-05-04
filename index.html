@@ -1,16 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>UniSmart AI</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg, #4f46e5, #9333ea);
+  margin: 0;
+  color: white;
+}
+
+.header {
+  padding: 20px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.container {
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  color: black;
+  border-radius: 15px;
+  padding: 20px;
+  max-width: 500px;
+  margin: auto;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #4f46e5;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #3730a3;
+}
+
+.progress {
+  height: 10px;
+  background: #ddd;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.bar {
+  height: 10px;
+  background: green;
+  border-radius: 10px;
+}
+
+.hidden {
+  display: none;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">🎓 UniSmart AI</div>
+
+<div class="container">
+
+  <div id="home" class="card">
+    <h2>Seleziona modalità</h2>
+
+    <button onclick="startMateria('diritto')">Diritto</button>
+    <button onclick="startMateria('economia')">Economia</button>
+    <button onclick="startMateria('lavoro')">Lavoro</button>
+
+    <hr>
+
+    <button onclick="startSimulazione()">🎯 Simulazione Esame</button>
+  </div>
+
+  <div id="quizBox" class="card hidden">
+    <div id="timer"></div>
+
+    <div class="progress">
+      <div id="bar" class="bar"></div>
+    </div>
+
+    <h3 id="domanda"></h3>
+    <div id="opzioni"></div>
+  </div>
+
+</div>
+
+<script>
+
+// ====== DATI ======
 let quizData = [];
 let quizFiltrati = [];
 let index = 0;
 let punteggio = 0;
 
-// carica tutti i quiz una volta sola
+let modalitaSimulazione = false;
+let tempo = 2700; // 45 minuti
+let timerInterval;
+
+// ====== CARICA QUIZ ======
 fetch("quiz.json")
   .then(res => res.json())
   .then(data => {
     quizData = data;
   });
 
-function start(materia){
+// ====== MODALITÀ MATERIA ======
+function startMateria(materia){
+  modalitaSimulazione = false;
+
   quizFiltrati = quizData.filter(q => q.materia === materia);
 
   index = 0;
@@ -21,3 +129,101 @@ function start(materia){
 
   mostra();
 }
+
+// ====== SIMULAZIONE ESAME ======
+function startSimulazione(){
+  modalitaSimulazione = true;
+
+  quizFiltrati = quizData.sort(() => 0.5 - Math.random()).slice(0, 30);
+
+  index = 0;
+  punteggio = 0;
+  tempo = 2700;
+
+  document.getElementById("home").classList.add("hidden");
+  document.getElementById("quizBox").classList.remove("hidden");
+
+  avviaTimer();
+  mostra();
+}
+
+// ====== TIMER ======
+function avviaTimer(){
+  aggiornaTimer();
+
+  timerInterval = setInterval(() => {
+    tempo--;
+
+    aggiornaTimer();
+
+    if(tempo <= 0){
+      clearInterval(timerInterval);
+      fineEsame();
+    }
+
+  }, 1000);
+}
+
+function aggiornaTimer(){
+  let min = Math.floor(tempo / 60);
+  let sec = tempo % 60;
+
+  document.getElementById("timer").innerText =
+    "⏱️ " + min + ":" + (sec < 10 ? "0" : "") + sec;
+}
+
+// ====== MOSTRA DOMANDA ======
+function mostra(){
+  const q = quizFiltrati[index];
+
+  document.getElementById("domanda").innerText = q.domanda;
+
+  let html = "";
+
+  q.opzioni.forEach((op, i) => {
+    html += `<button onclick="rispondi(${i})">${op}</button>`;
+  });
+
+  document.getElementById("opzioni").innerHTML = html;
+
+  let progress = ((index+1)/quizFiltrati.length)*100;
+  document.getElementById("bar").style.width = progress + "%";
+}
+
+// ====== RISPOSTA ======
+function rispondi(i){
+  const q = quizFiltrati[index];
+
+  if(i === q.corretta){
+    punteggio++;
+  }
+
+  index++;
+
+  if(index >= quizFiltrati.length){
+    fineEsame();
+  } else {
+    mostra();
+  }
+}
+
+// ====== FINE ======
+function fineEsame(){
+
+  clearInterval(timerInterval);
+
+  let soglia = modalitaSimulazione ? 18 : Math.floor(quizFiltrati.length / 2);
+  let esito = punteggio >= soglia ? "SUPERATO ✅" : "NON SUPERATO ❌";
+
+  document.getElementById("quizBox").innerHTML = `
+    <h2>📊 Risultato</h2>
+    <p>Punteggio: ${punteggio}/${quizFiltrati.length}</p>
+    <h3>${esito}</h3>
+    <button onclick="location.reload()">Riprova</button>
+  `;
+}
+
+</script>
+
+</body>
+</html>
