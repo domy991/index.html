@@ -1,0 +1,7 @@
+[
+  {"domanda":"Il tributo è?","opzioni":["Volontario","Obbligatorio","Privato","Facoltativo"],"corretta":1,"spiegazione":"È imposto per legge"},
+  {"domanda":"L’imposta è?","opzioni":["Corrispettivo","Senza controprestazione","Servizio","Donazione"],"corretta":1,"spiegazione":"Non ha controprestazione"},
+  {"domanda":"La tassa è?","opzioni":["Servizio pubblico","Privata","Contratto","Nulla"],"corretta":0,"spiegazione":"Legata a servizio"},
+  {"domanda":"IRPEF è?","opzioni":["Tassa","Imposta","Contributo","Multa"],"corretta":1,"spiegazione":"Imposta sul reddito"},
+  {"domanda":"IVA è?","opzioni":["Reddito","Consumo","Lavoro","Capitale"],"corretta":1,"spiegazione":"Colpisce consumo"}
+]
