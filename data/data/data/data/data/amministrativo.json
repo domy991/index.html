@@ -1,0 +1,7 @@
+[
+  {"domanda":"PA è soggetta a?","opzioni":["Privato","Legge","Contratto","Nulla"],"corretta":1,"spiegazione":"Principio legalità"},
+  {"domanda":"Atto amministrativo è?","opzioni":["Privato","Pubblico","Contratto","Sentenza"],"corretta":1,"spiegazione":"Provvedimento PA"},
+  {"domanda":"Comune è?","opzioni":["Privato","Ente pubblico","Società","Persona"],"corretta":1,"spiegazione":"Ente locale"},
+  {"domanda":"Sindaco è?","opzioni":["Privato","Autorità","Impiegato","Giudice"],"corretta":1,"spiegazione":"Autorità locale"},
+  {"domanda":"Legalità significa?","opzioni":["Libertà","Legge","Potere","Nulla"],"corretta":1,"spiegazione":"Azione secondo legge"}
+]
