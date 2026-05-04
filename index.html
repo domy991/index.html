@@ -1,16 +1,23 @@
+let quizData = [];
 let quizFiltrati = [];
+let index = 0;
+let punteggio = 0;
+
+// carica tutti i quiz una volta sola
+fetch("quiz.json")
+  .then(res => res.json())
+  .then(data => {
+    quizData = data;
+  });
 
 function start(materia){
-  fetch("data/" + materia + ".json")
-    .then(res => res.json())
-    .then(data => {
-      quizFiltrati = data;
-      index = 0;
-      punteggio = 0;
+  quizFiltrati = quizData.filter(q => q.materia === materia);
 
-      document.getElementById("home").classList.add("hidden");
-      document.getElementById("quizBox").classList.remove("hidden");
+  index = 0;
+  punteggio = 0;
 
-      mostra();
-    });
+  document.getElementById("home").classList.add("hidden");
+  document.getElementById("quizBox").classList.remove("hidden");
+
+  mostra();
 }
