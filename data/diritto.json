@@ -24,4 +24,9 @@
 {"domanda":"La prova serve a?","opzioni":["Punire","Dimostrare","Bloccare","Nulla"],"corretta":1,"spiegazione":"Dimostrare fatti"},
 {"domanda":"Il diritto è?","opzioni":["Opinione","Regola","Suggerimento","Nulla"],"corretta":1,"spiegazione":"Sistema regole"},
 {"domanda":"La norma è generale?","opzioni":["No","Sì","Solo aziende","Solo Stato"],"corretta":1,"spiegazione":"Vale per tutti"}
+{"domanda":"Qual è la funzione principale del processo civile?","opzioni":["Punire","Accertare diritti","Creare leggi","Emanare atti"],"corretta":1,"spiegazione":"Serve ad accertare diritti soggettivi"},
+{"domanda":"Chi è titolare dell’azione civile?","opzioni":["Giudice","Attore","Convenuto","PM"],"corretta":1,"spiegazione":"L’attore esercita l’azione"},
+{"domanda":"La giurisdizione civile è esercitata da?","opzioni":["Parlamento","Giudice","Avvocato","PA"],"corretta":1,"spiegazione":"Dal giudice"},
+{"domanda":"Il principio del contraddittorio implica?","opzioni":["Silenzio","Difesa reciproca","Obbligo pagamento","Sanzione"],"corretta":1,"spiegazione":"Le parti si confrontano"},
+{"domanda":"La sentenza è?","opzioni":["Atto amministrativo","Decisione giudiziale","Contratto","Legge"],"corretta":1,"spiegazione":"Decisione del giudice"}
 ]
