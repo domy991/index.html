@@ -4,4 +4,9 @@
   {"domanda":"Comune è?","opzioni":["Privato","Ente pubblico","Società","Persona"],"corretta":1,"spiegazione":"Ente locale"},
   {"domanda":"Sindaco è?","opzioni":["Privato","Autorità","Impiegato","Giudice"],"corretta":1,"spiegazione":"Autorità locale"},
   {"domanda":"Legalità significa?","opzioni":["Libertà","Legge","Potere","Nulla"],"corretta":1,"spiegazione":"Azione secondo legge"}
+{"domanda":"Il principio di legalità implica?","opzioni":["Libertà","Azione conforme alla legge","Autonomia","Arbitrio"],"corretta":1,"spiegazione":"PA agisce secondo legge"},
+{"domanda":"L’atto amministrativo è?","opzioni":["Privato","Pubblico","Contrattuale","Giudiziale"],"corretta":1,"spiegazione":"Atto della PA"},
+{"domanda":"Il procedimento amministrativo è?","opzioni":["Sentenza","Sequenza atti","Contratto","Legge"],"corretta":1,"spiegazione":"Serie di atti"},
+{"domanda":"La discrezionalità amministrativa è?","opzioni":["Arbitrio","Scelta entro limiti","Obbligo","Nulla"],"corretta":1,"spiegazione":"Scelta regolata"},
+{"domanda":"Il provvedimento amministrativo è?","opzioni":["Atto finale","Contratto","Sentenza","Nulla"],"corretta":0,"spiegazione":"Conclusione procedimento"}
 ]
