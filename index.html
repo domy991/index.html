@@ -1,1 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>UniSmart AI</title>
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg, #4f46e5, #9333ea);
+  color: white;
+  text-align: center;
+  padding: 30px;
+}
+.card {
+  background: white;
+  color: black;
+  padding: 20px;
+  border-radius: 15px;
+  max-width: 400px;
+  margin: auto;
+}
+button {
+  padding: 12px;
+  margin: 8px;
+  border: none;
+  border-radius: 10px;
+  background: #4f46e5;
+  color: white;
+  cursor: pointer;
+  width: 100%;
+}
+</style>
+</head>
 
+<body>
+
+<h1>UniSmart AI 🎓</h1>
+
+<button onclick="startQuiz()">Inizia Quiz</button>
+
+<div id="quiz" class="card" style="margin-top:20px;"></div>
+
+<script>
+const quiz = [
+  {
+    domanda: "Chi avvia il processo?",
+    opzioni: ["Giudice","Convenuto","Attore","PM"],
+    corretta: 2
+  },
+  {
+    domanda: "Il tributo è?",
+    opzioni: ["Volontario","Obbligatorio","Facoltativo","Contratto"],
+    corretta: 1
+  }
+];
+
+let index = 0;
+
+function startQuiz(){
+  index = 0;
+  mostraDomanda();
+}
+
+function mostraDomanda(){
+  if(index >= quiz.length){
+    document.getElementById("quiz").innerHTML = "<h2>Fine quiz</h2>";
+    return;
+  }
+
+  const q = quiz[index];
+
+  let html = "<h2>" + q.domanda + "</h2>";
+
+  q.opzioni.forEach((op, i) => {
+    html += `<button onclick="rispondi(${i})">${op}</button>`;
+  });
+
+  document.getElementById("quiz").innerHTML = html;
+}
+
+function rispondi(i){
+  index++;
+  mostraDomanda();
+}
+</script>
+
+</body>
+</html>
