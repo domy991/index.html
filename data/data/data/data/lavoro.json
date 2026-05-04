@@ -4,4 +4,9 @@
   {"domanda":"Contratto lavoro è?","opzioni":["Accordo","Legge","Sentenza","Nulla"],"corretta":0,"spiegazione":"Accordo tra parti"},
   {"domanda":"Licenziamento è?","opzioni":["Assunzione","Fine rapporto","Contratto","Permesso"],"corretta":1,"spiegazione":"Fine rapporto"},
   {"domanda":"Datore lavoro è?","opzioni":["Dipendente","Capo","Cliente","Stato"],"corretta":1,"spiegazione":"Chi assume"}
+{"domanda":"Il rapporto di lavoro subordinato è caratterizzato da?","opzioni":["Autonomia","Subordinazione","Parità","Indipendenza"],"corretta":1,"spiegazione":"Subordinazione"},
+{"domanda":"La NASpI è?","opzioni":["Contratto","Sussidio","Licenza","Tributo"],"corretta":1,"spiegazione":"Indennità disoccupazione"},
+{"domanda":"Il datore di lavoro è?","opzioni":["Dipendente","Chi assume","Cliente","Stato"],"corretta":1,"spiegazione":"Chi organizza lavoro"},
+{"domanda":"Il licenziamento è?","opzioni":["Assunzione","Fine rapporto","Contratto","Permesso"],"corretta":1,"spiegazione":"Cessazione rapporto"},
+{"domanda":"Il contratto collettivo è?","opzioni":["Individuale","Collettivo","Privato","Pubblico"],"corretta":1,"spiegazione":"Accordo sindacale"}
 ]
