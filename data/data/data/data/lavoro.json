@@ -1,0 +1,7 @@
+[
+  {"domanda":"NASpI è?","opzioni":["Contratto","Sussidio","Licenza","Tributo"],"corretta":1,"spiegazione":"Sussidio disoccupazione"},
+  {"domanda":"Lavoratore subordinato è?","opzioni":["Autonomo","Dipendente","Libero","Imprenditore"],"corretta":1,"spiegazione":"Dipendente"},
+  {"domanda":"Contratto lavoro è?","opzioni":["Accordo","Legge","Sentenza","Nulla"],"corretta":0,"spiegazione":"Accordo tra parti"},
+  {"domanda":"Licenziamento è?","opzioni":["Assunzione","Fine rapporto","Contratto","Permesso"],"corretta":1,"spiegazione":"Fine rapporto"},
+  {"domanda":"Datore lavoro è?","opzioni":["Dipendente","Capo","Cliente","Stato"],"corretta":1,"spiegazione":"Chi assume"}
+]
