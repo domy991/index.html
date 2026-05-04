@@ -1,0 +1,7 @@
+[
+  {"domanda":"Il PIL misura?","opzioni":["Tasse","Produzione","Salari","Import"],"corretta":1,"spiegazione":"Produzione totale"},
+  {"domanda":"Domanda è?","opzioni":["Offerta","Richiesta","Costo","Prezzo"],"corretta":1,"spiegazione":"Richiesta beni"},
+  {"domanda":"Offerta è?","opzioni":["Produzione","Consumo","Domanda","Reddito"],"corretta":0,"spiegazione":"Produzione beni"},
+  {"domanda":"Inflazione è?","opzioni":["Prezzi giù","Prezzi su","Salari giù","Nulla"],"corretta":1,"spiegazione":"Aumento prezzi"},
+  {"domanda":"Mercato è?","opzioni":["Luogo","Sistema","Stato","Legge"],"corretta":1,"spiegazione":"Sistema domanda-offerta"}
+]
