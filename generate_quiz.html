@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Generatore Quiz UniSmart</title>
+</head>
+
+<body style="font-family:Arial;padding:20px">
+
+<h2>Genera 1000 Quiz</h2>
+<button onclick="genera()">Genera File</button>
+
+<pre id="output"></pre>
+
+<script>
+
+const materie = ["diritto","tributario","amministrativo","economia","lavoro"];
+
+const base = [
+["Il principio di legalità implica","Azione conforme alla legge"],
+["Il PIL misura","Produzione totale"],
+["Il tributo è","Obbligatorio per legge"],
+["Il rapporto subordinato implica","Subordinazione"],
+["Il giudice è","Soggetto terzo"],
+["La domanda è","Richiesta di beni"],
+["Il contratto è","Accordo tra parti"],
+["L’inflazione è","Aumento prezzi"],
+["La NASpI è","Sussidio disoccupazione"],
+["L’imposta è","Senza controprestazione"]
+];
+
+function genera(){
+
+let quiz = [];
+
+for(let i=0;i<1000;i++){
+
+  let b = base[Math.floor(Math.random()*base.length)];
+
+  let domanda = b[0] + " (" + (i+1) + ")";
+
+  let corretta = b[1];
+
+  let opzioni = [
+    corretta,
+    "Errore comune",
+    "Opzione falsa",
+    "Risposta non corretta"
+  ];
+
+  opzioni.sort(()=>Math.random()-0.5);
+
+  quiz.push({
+    materia: materie[Math.floor(Math.random()*materie.length)],
+    domanda: domanda,
+    opzioni: opzioni,
+    corretta: opzioni.indexOf(corretta),
+    spiegazione: corretta
+  });
+}
+
+document.getElementById("output").textContent = JSON.stringify(quiz,null,2);
+
+}
+</script>
+
+</body>
+</html>
