@@ -4,4 +4,9 @@
   {"domanda":"La tassa è?","opzioni":["Servizio pubblico","Privata","Contratto","Nulla"],"corretta":0,"spiegazione":"Legata a servizio"},
   {"domanda":"IRPEF è?","opzioni":["Tassa","Imposta","Contributo","Multa"],"corretta":1,"spiegazione":"Imposta sul reddito"},
   {"domanda":"IVA è?","opzioni":["Reddito","Consumo","Lavoro","Capitale"],"corretta":1,"spiegazione":"Colpisce consumo"}
+{"domanda":"Il principio di capacità contributiva è sancito da quale articolo della Costituzione?","opzioni":["Art. 3","Art. 53","Art. 97","Art. 24"],"corretta":1,"spiegazione":"Art. 53 Cost."},
+{"domanda":"Il tributo è caratterizzato da?","opzioni":["Volontarietà","Coattività","Contrattualità","Facoltatività"],"corretta":1,"spiegazione":"È obbligatorio"},
+{"domanda":"L’imposta si distingue dalla tassa perché?","opzioni":["È volontaria","Non ha controprestazione","È privata","È penale"],"corretta":1,"spiegazione":"Non ha controprestazione"},
+{"domanda":"L’IVA è un’imposta su?","opzioni":["Reddito","Consumo","Patrimonio","Successione"],"corretta":1,"spiegazione":"Colpisce consumo"},
+{"domanda":"Il presupposto d’imposta è?","opzioni":["Pagamento","Fatto economico","Contratto","Sentenza"],"corretta":1,"spiegazione":"Evento che genera imposta"}
 ]
