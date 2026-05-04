@@ -11,12 +11,11 @@
 <style>
 body{margin:0;font-family:Segoe UI;background:linear-gradient(135deg,#4f46e5,#9333ea);color:white;text-align:center}
 .card{background:white;color:black;border-radius:15px;padding:20px;margin:15px auto;width:90%;max-width:450px}
-button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;background:#4f46e5;color:white;font-size:15px}
+button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;background:#4f46e5;color:white}
 .hidden{display:none}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .progress{height:6px;background:#ddd;border-radius:10px;margin:10px 0}
 .bar{height:6px;background:#10b981;border-radius:10px}
-.timer{font-weight:bold;margin-bottom:10px}
 </style>
 </head>
 
@@ -24,7 +23,6 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;ba
 
 <h2>🎓 UniSmart AI</h2>
 
-<!-- LOGIN -->
 <div id="loginBox" class="card">
 <input id="email" placeholder="Email"><br>
 <input id="password" type="password" placeholder="Password"><br>
@@ -32,7 +30,6 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;ba
 <button onclick="register()">Registrati</button>
 </div>
 
-<!-- HOME -->
 <div id="home" class="hidden">
 
 <div class="card">
@@ -46,7 +43,7 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;ba
 <button onclick="startMateria('trib')">💰 Trib.</button>
 </div>
 
-<button onclick="simulazione()">🎯 Simulazione Esame</button>
+<button onclick="simulazione()">🎯 Simulazione</button>
 <button onclick="mostraErrori()">❌ Errori</button>
 <button onclick="ripasso()">🧠 Ripasso</button>
 
@@ -54,7 +51,13 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;ba
 <div id="paypal-button-container"></div>
 
 <button onclick="logout()">Logout</button>
+</div>
 
+<!-- ADMIN -->
+<div id="adminBox" class="card hidden">
+<h3>⚙️ Admin Panel</h3>
+<button onclick="resetClassifica()">Reset classifica</button>
+<button onclick="aggiungiQuiz()">Aggiungi quiz rapido</button>
 </div>
 
 <div class="card">
@@ -64,15 +67,16 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;ba
 
 </div>
 
-<!-- QUIZ -->
 <div id="quizBox" class="card hidden">
-<div id="timer" class="timer"></div>
 <div class="progress"><div id="bar" class="bar"></div></div>
 <h3 id="domanda"></h3>
 <div id="opzioni"></div>
 </div>
 
 <script>
+
+// 🔐 ADMIN EMAIL
+const ADMIN_EMAIL = "domenicosenza@gmail.com";
 
 // FIREBASE
 firebase.initializeApp({
@@ -86,15 +90,12 @@ const db = firebase.firestore();
 
 // LOGIN
 function login(){
- let e=email.value.trim(), p=password.value;
- if(!e.includes("@")) return alert("Email non valida");
- auth.signInWithEmailAndPassword(e,p).catch(err=>alert(err.message));
+ auth.signInWithEmailAndPassword(email.value.trim(),password.value)
+ .catch(e=>alert(e.message));
 }
 function register(){
- let e=email.value.trim(), p=password.value;
- if(!e.includes("@")) return alert("Email non valida");
- auth.createUserWithEmailAndPassword(e,p).then(()=>alert("Account creato"))
- .catch(err=>alert(err.message));
+ auth.createUserWithEmailAndPassword(email.value.trim(),password.value)
+ .catch(e=>alert(e.message));
 }
 function logout(){auth.signOut();}
 
@@ -104,83 +105,62 @@ auth.onAuthStateChanged(u=>{
   loginBox.classList.add("hidden");
   home.classList.remove("hidden");
   user.innerText=u.email;
+
+  // ADMIN CHECK (ANTI MAIUSCOLE)
+  if(u.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()){
+    adminBox.classList.remove("hidden");
+  }
+
   caricaClassifica();
+
  }else{
   loginBox.classList.remove("hidden");
   home.classList.add("hidden");
  }
 });
 
-// DATABASE QUIZ
+// QUIZ DATABASE
 let DB = {
 amm:[
-{domanda:"La legge 241/1990 riguarda:",opzioni:["Procedimento amministrativo","Penale","Civile","Costituzione"],corretta:0},
+{domanda:"La legge 241/1990 riguarda:",opzioni:["Procedimento amministrativo","Penale","Civile","Cost."],corretta:0},
 {domanda:"Il silenzio assenso è:",opzioni:["Accoglimento","Rigetto","Sanzione","Nullità"],corretta:0}
 ],
 cost:[
-{domanda:"La Costituzione entra in vigore:",opzioni:["1948","1861","1922","2001"],corretta:0},
-{domanda:"Il Parlamento è:",opzioni:["Camera e Senato","Solo Camera","Governo","Corte"],corretta:0}
+{domanda:"Costituzione entra:",opzioni:["1948","1861","1922","2001"],corretta:0}
 ],
 eco:[
-{domanda:"Il PIL misura:",opzioni:["Produzione","Debito","Inflazione","Reddito"],corretta:0},
-{domanda:"Il deficit è:",opzioni:["Spesa>Entrate","Entrate>Spesa","Zero","Debito"],corretta:0}
+{domanda:"Il PIL misura:",opzioni:["Produzione","Debito","Inflazione","Reddito"],corretta:0}
 ],
 trib:[
-{domanda:"IRPEF è:",opzioni:["Diretta","Indiretta","Locale","Comunale"],corretta:0},
-{domanda:"IVA è:",opzioni:["Indiretta","Diretta","Regionale","Statale"],corretta:0}
+{domanda:"IVA è:",opzioni:["Indiretta","Diretta","Locale","Regionale"],corretta:0}
 ]
 };
 
-// STATO
-let quiz=[], index=0, punti=0, tempo=2700;
+let quiz=[], index=0, punti=0;
 let errori = JSON.parse(localStorage.getItem("errori")||"[]");
 
-// AVVIO MATERIA
-function startMateria(m){
- quiz = DB[m].sort(()=>0.5-Math.random());
- avvia();
-}
-
-// SIMULAZIONE
-function simulazione(){
- quiz = [].concat(...Object.values(DB)).sort(()=>0.5-Math.random()).slice(0,30);
- avvia();
-}
-
 // AVVIO
+function startMateria(m){
+ quiz = DB[m];
+ avvia();
+}
+function simulazione(){
+ quiz = [].concat(...Object.values(DB)).sort(()=>0.5-Math.random());
+ avvia();
+}
 function avvia(){
- index=0; punti=0; tempo=2700;
+ index=0; punti=0;
  quizBox.classList.remove("hidden");
  home.classList.add("hidden");
- timerStart();
  mostra();
 }
 
-// TIMER
-let t;
-function timerStart(){
- clearInterval(t);
- t=setInterval(()=>{
-  tempo--;
-  let m=Math.floor(tempo/60), s=tempo%60;
-  timer.innerText="⏱ "+m+":"+(s<10?"0":"")+s;
-  if(tempo<=0) fine();
- },1000);
-}
-
-// MOSTRA
 function mostra(){
-
- if(index>=10 && !localStorage.getItem("premium")){
-  quizBox.innerHTML="<h3>🔒 Premium richiesto</h3>";
-  return;
- }
-
  if(index>=quiz.length){
-  fine();
+  salvaScore();
+  quizBox.innerHTML=`<h3>Risultato ${punti}/${quiz.length}</h3><button onclick="location.reload()">Home</button>`;
   return;
  }
-
  let q=quiz[index];
  domanda.innerText=q.domanda;
 
@@ -193,35 +173,27 @@ function mostra(){
  bar.style.width=((index+1)/quiz.length*100)+"%";
 }
 
-// RISPOSTA
 function rispondi(i){
- let q=quiz[index];
- if(i===q.corretta) punti++;
+ if(i===quiz[index].corretta) punti++;
  else{
-  errori.push(q);
+  errori.push(quiz[index]);
   localStorage.setItem("errori",JSON.stringify(errori));
  }
  index++;
  mostra();
 }
 
-// FINE
-function fine(){
- clearInterval(t);
- salvaScore();
- quizBox.innerHTML=`<h3>Risultato ${punti}/${quiz.length}</h3><button onclick="location.reload()">Home</button>`;
-}
-
 // ERRORI
 function mostraErrori(){
- if(errori.length==0) return alert("Nessun errore");
- quiz=errori; avvia();
+ if(errori.length===0) return alert("Nessun errore");
+ quiz=errori;
+ avvia();
 }
 
 // RIPASSO
 function ripasso(){
- if(errori.length==0) return alert("Nessun errore");
- quiz=errori.sort(()=>0.5-Math.random()).slice(0,20);
+ if(errori.length===0) return alert("Nessun errore");
+ quiz=errori.sort(()=>0.5-Math.random()).slice(0,10);
  avvia();
 }
 
@@ -246,6 +218,28 @@ function caricaClassifica(){
   });
   rank.innerHTML=html;
  });
+}
+
+// ADMIN
+function resetClassifica(){
+ db.collection("leaderboard").get().then(s=>{
+  s.forEach(doc=>doc.ref.delete());
+ });
+ alert("Classifica resettata");
+}
+
+function aggiungiQuiz(){
+ let domanda = prompt("Domanda?");
+ let a = prompt("Risposta A");
+ let b = prompt("Risposta B");
+
+ DB.amm.push({
+  domanda:domanda,
+  opzioni:[a,b,"C","D"],
+  corretta:0
+ });
+
+ alert("Quiz aggiunto (solo sessione)");
 }
 
 </script>
