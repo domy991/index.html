@@ -83,6 +83,7 @@ button:hover {
   <button onclick="startSimulazione()">🎯 Simulazione Esame</button>
   <button onclick="mostraErrori()">❌ I tuoi errori</button>
   <button onclick="ripasso()">🧠 Ripasso intelligente</button>
+  <button onclick="vaiPagamento()">💰 Sblocca Premium</button>
 </div>
 
 <!-- QUIZ -->
@@ -112,7 +113,6 @@ function login(){
   document.getElementById("user").innerText = user;
 }
 
-// auto login
 if(localStorage.getItem("user")){
   document.getElementById("loginBox").classList.add("hidden");
   document.getElementById("home").classList.remove("hidden");
@@ -129,6 +129,8 @@ let punteggio = 0;
 
 let tempo = 2700;
 let timerInterval;
+
+let limiteFree = 10;
 
 // ===== LOAD QUIZ =====
 fetch("quiz.json")
@@ -173,6 +175,16 @@ function aggiornaTimer(){
 
 // ===== DOMANDA =====
 function mostra(){
+
+  if(index >= limiteFree && !localStorage.getItem("premium")){
+    document.getElementById("quizBox").innerHTML = `
+      <h2>🔒 Premium</h2>
+      <p>Hai raggiunto il limite gratuito</p>
+      <button onclick="vaiPagamento()">Sblocca a 7€/mese</button>
+    `;
+    return;
+  }
+
   let q = quizFiltrati[index];
 
   document.getElementById("domanda").innerText = q.domanda;
@@ -215,12 +227,12 @@ function fine(){
 
   document.getElementById("quizBox").innerHTML = `
     <h2>Risultato</h2>
-    <p>${punteggio}/30</p>
+    <p>${punteggio}/${quizFiltrati.length}</p>
     <button onclick="location.reload()">Home</button>
   `;
 }
 
-// ===== STORICO ERRORI =====
+// ===== ERRORI =====
 function mostraErrori(){
 
   if(errori.length === 0){
@@ -238,15 +250,14 @@ function mostraErrori(){
   mostra();
 }
 
-// ===== RIPASSO INTELLIGENTE =====
+// ===== RIPASSO =====
 function ripasso(){
 
   if(errori.length === 0){
-    alert("Nessun errore per il ripasso");
+    alert("Nessun errore");
     return;
   }
 
-  // prende solo errori casuali
   quizFiltrati = errori.sort(()=>0.5-Math.random()).slice(0,20);
 
   index = 0;
@@ -257,6 +268,14 @@ function ripasso(){
 
   mostra();
 }
+
+// ===== PAGAMENTO =====
+function vaiPagamento(){
+  window.location.href = "https://buy.stripe.com/XXXXX";
+}
+
+// TEST SBLOCCO
+// localStorage.setItem("premium","true");
 
 </script>
 
