@@ -3,12 +3,8 @@
 <head>
 <title>UniSmart AI</title>
 
-<link rel="manifest" href="manifest.json">
-
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
 
 <style>
 body{
@@ -16,19 +12,16 @@ body{
   font-family:Segoe UI;
   background:linear-gradient(135deg,#4f46e5,#9333ea);
   color:white;
+  text-align:center;
 }
-.header{
-  padding:15px;
-  display:flex;
-  justify-content:space-between;
-}
-.container{padding:15px;}
 .card{
   background:white;
   color:black;
   border-radius:15px;
-  padding:15px;
-  margin-bottom:10px;
+  padding:20px;
+  margin:20px auto;
+  width:90%;
+  max-width:400px;
 }
 button{
   width:100%;
@@ -40,24 +33,12 @@ button{
   color:white;
 }
 .hidden{display:none}
-.progress{height:6px;background:#ddd;border-radius:10px}
-.bar{height:6px;background:#10b981;border-radius:10px}
-.nav{
- position:fixed;bottom:0;width:100%;
- display:flex;justify-content:space-around;
- background:white;color:#4f46e5;
-}
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <div>🎓 UniSmart</div>
-  <div id="user"></div>
-</div>
-
-<div class="container">
+<h2>🎓 UniSmart AI</h2>
 
 <div id="loginBox" class="card">
 <input id="email" placeholder="Email"><br>
@@ -66,177 +47,90 @@ button{
 <button onclick="register()">Registrati</button>
 </div>
 
-<div id="home" class="hidden">
+<div id="home" class="card hidden">
+<h3 id="user"></h3>
 
-<div class="card">
-<h3>🚀 Avvia</h3>
-<button onclick="start()">Simulazione</button>
-<button onclick="generaAI()">🤖 Quiz AI</button>
-</div>
+<button onclick="start()">🎯 Inizia Quiz</button>
 
-<div class="card">
-<h3>🏆 Classifica</h3>
-<div id="rank"></div>
-</div>
-
-<div class="card">
-<h3>💎 Premium</h3>
+<h4>💎 Premium 7€/mese</h4>
 <div id="paypal-button-container"></div>
 </div>
 
-</div>
-
-<div id="quizBox" class="card hidden">
-<div id="timer"></div>
-<div class="progress"><div id="bar" class="bar"></div></div>
-<h3 id="domanda"></h3>
-<div id="opzioni"></div>
-</div>
-
-</div>
-
-<div class="nav">
-<button onclick="homeView()">Home</button>
-<button onclick="start()">Quiz</button>
-<button onclick="logout()">Logout</button>
-</div>
+<div id="quizBox" class="card hidden"></div>
 
 <script>
 
 // FIREBASE
 firebase.initializeApp({
  apiKey:"AIzaSyCx-0jUXU98TyetAvNE6SP2E55YwsaLJ9o",
- authDomain:"uniai-4726b.firebaseapp.com",
- projectId:"uniai-4726b"
+ authDomain:"uniai-4726b.firebaseapp.com"
 });
 
 const auth=firebase.auth();
-const db=firebase.firestore();
-const analytics=firebase.analytics();
 
 // LOGIN
 function login(){
  auth.signInWithEmailAndPassword(email.value,password.value)
+ .catch(e=>alert(e.message))
 }
 function register(){
  auth.createUserWithEmailAndPassword(email.value,password.value)
+ .catch(e=>alert(e.message))
 }
-function logout(){auth.signOut()}
 
 // SESSIONE
-let premium=false;
-
 auth.onAuthStateChanged(u=>{
  if(u){
-  loginBox.classList.add("hidden");
-  home.classList.remove("hidden");
-  user.innerText=u.email;
-
-  db.collection("users").doc(u.uid).get().then(d=>{
-    if(d.exists && d.data().premium) premium=true;
-  });
-
-  loadRank();
+  loginBox.classList.add("hidden")
+  home.classList.remove("hidden")
+  user.innerText=u.email
  }else{
-  loginBox.classList.remove("hidden");
+  loginBox.classList.remove("hidden")
  }
-});
+})
 
-// QUIZ
-let quiz=[{
- domanda:"Il PIL misura?",
- opzioni:["Produzione","Costo","Prezzo","Debito"],
- corretta:0
-}];
+// QUIZ BASE
+let quiz=[
+ {domanda:"Il PIL misura?",opzioni:["Produzione","Costo","Prezzo","Debito"],corretta:0},
+ {domanda:"Cos'è un tributo?",opzioni:["Entrata pubblica","Spesa","Debito","Credito"],corretta:0},
+ {domanda:"Chi paga l'IRPEF?",opzioni:["Persone fisiche","Imprese","Stato","Banche"],corretta:0}
+];
 
 let i=0;
-let punteggio=0;
 
 function start(){
- quizBox.classList.remove("hidden");
- home.classList.add("hidden");
- i=0; punteggio=0;
- next();
- analytics.logEvent("quiz_start");
+ quizBox.classList.remove("hidden")
+ home.classList.add("hidden")
+ i=0
+ next()
 }
 
 function next(){
- if(i>=10 && !premium){
-  quizBox.innerHTML="<h3>Premium richiesto</h3>";
-  return;
+
+ if(i>=10 && !localStorage.getItem("premium")){
+  quizBox.innerHTML="<h3>🔒 Passa a Premium</h3>"
+  return
  }
+
  if(i>=quiz.length){
-  salvaScore();
-  quizBox.innerHTML="<h3>Fine "+punteggio+"</h3>";
-  analytics.logEvent("quiz_complete",{score:punteggio});
-  return;
+  quizBox.innerHTML="<h3>Fine quiz</h3>"
+  return
  }
 
- let q=quiz[i];
- domanda.innerText=q.domanda;
+ let q=quiz[i]
 
- let html="";
+ let html=`<h3>${q.domanda}</h3>`
+
  q.opzioni.forEach((o,idx)=>{
-  html+=`<button onclick="ans(${idx})">${o}</button>`;
- });
- opzioni.innerHTML=html;
+  html+=`<button onclick="ans(${idx})">${o}</button>`
+ })
 
- bar.style.width=((i+1)/quiz.length*100)+"%";
+ quizBox.innerHTML=html
 }
 
 function ans(x){
- if(x===quiz[i].corretta) punteggio++;
- i++; next();
-}
-
-// SALVA CLASSIFICA
-function salvaScore(){
- let u=auth.currentUser;
- if(!u) return;
-
- db.collection("leaderboard").doc(u.uid).set({
-  email:u.email,
-  punti:firebase.firestore.FieldValue.increment(punteggio)
- },{merge:true});
-}
-
-// LOAD CLASSIFICA
-function loadRank(){
- db.collection("leaderboard")
- .orderBy("punti","desc")
- .limit(10)
- .get()
- .then(s=>{
-  let h="";
-  let p=1;
-  s.forEach(d=>{
-    let u=d.data();
-    h+=`<p>${p}. ${u.email} - ${u.punti}</p>`;
-    p++;
-  });
-  rank.innerHTML=h;
- });
-}
-
-// AI (semplice demo)
-function generaAI(){
- quiz.push({
-  domanda:"Domanda generata AI",
-  opzioni:["A","B","C","D"],
-  corretta:0
- });
- alert("Quiz AI aggiunto");
-}
-
-// VIEW
-function homeView(){
- quizBox.classList.add("hidden");
- home.classList.remove("hidden");
-}
-
-// PWA
-if("serviceWorker" in navigator){
- navigator.serviceWorker.register("sw.js");
+ i++
+ next()
 }
 
 </script>
@@ -249,11 +143,11 @@ paypal.Buttons({
  createSubscription:(d,a)=>a.subscription.create({
   plan_id:'P-89F40211XT761711BNH4KATA'
  }),
- onApprove:(d,a)=>{
-  localStorage.setItem("premium","true");
-  alert("Premium attivo");
+ onApprove:()=>{
+  localStorage.setItem("premium","true")
+  alert("✅ Premium attivo!")
  }
-}).render('#paypal-button-container');
+}).render('#paypal-button-container')
 </script>
 
 </body>
